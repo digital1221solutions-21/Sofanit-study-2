@@ -199,6 +199,23 @@
     text-align: center;
     margin-right: 8px;
   }
+
+  .subject-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+  }
+  
+  .subject-management-item:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+  }
   
   @media (min-width: 768px) {
     .card {
@@ -213,7 +230,7 @@
 </head>
 <body>
 
-  <h1 class="main-title">⭐ Sofanit - Professional Study App ⭐</h1>
+  <h1 class="main-title">⭐ DDS-StudyVault ⭐</h1>
 
   <!-- GLOBAL MENU CONTAINER -->
   <div id="globalResourceMenu"></div>
@@ -262,6 +279,37 @@
         </div>
       </div>
       
+      <!-- Subject Management Modal -->
+      <div id="subjectManagementModal" class="modal-bg">
+        <div class="modal-content exam-creator-modal">
+          <h4 class="text-lg font-bold text-gray-800 mb-3 text-center">Subject Management</h4>
+          
+          <div class="mb-4">
+            <div class="flex items-center mb-3">
+              <input type="text" id="newSubjectName" placeholder="Enter new subject name" 
+                     class="flex-grow p-2 border rounded-l-lg text-sm" maxlength="50">
+              <button type="button" onclick="addNewSubject()" 
+                      class="bg-green-500 hover:bg-green-600 text-white font-bold p-2 rounded-r-lg text-sm">
+                <i class="fas fa-plus"></i> Add
+              </button>
+            </div>
+            
+            <div id="subjectListContainer" class="space-y-2 max-h-60 overflow-y-auto p-2 bg-gray-50 rounded-lg border">
+              <!-- Subject items will be dynamically inserted here -->
+            </div>
+            
+            <div class="mt-3 text-xs text-gray-500">
+              <p><i class="fas fa-info-circle mr-1"></i> Subjects with content cannot be deleted until all questions and resources are removed.</p>
+            </div>
+          </div>
+          
+          <div class="flex justify-between space-x-2">
+            <button type="button" onclick="closeSubjectManagement()" class="w-full bg-gray-400 text-white font-bold py-2 rounded text-sm">Close</button>
+            <button type="button" onclick="saveSubjectChanges()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded text-sm">Save Changes</button>
+          </div>
+        </div>
+      </div>
+      
       <!-- Bulk Uploader Modal -->
       <div id="bulkUploaderModal" class="modal-bg">
         <div class="modal-content exam-creator-modal">
@@ -276,16 +324,19 @@
           
           <div class="grid grid-cols-2 gap-2 mb-3">
             <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Default Subject</label>
-                <select id="uploadSubject" class="w-full p-1 text-sm border rounded">
-                  <option value="Math">Math</option>
-                  <option value="Reading">Reading</option>
-                  <option value="Science">Science</option>
-                  <option value="Computer Science">Computer Science</option>
-                </select>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Subject</label>
+                <div class="flex">
+                  <select id="uploadSubject" class="flex-grow p-1 text-sm border rounded-l">
+                    <!-- Subjects will be populated dynamically -->
+                  </select>
+                  <button type="button" onclick="openSubjectManagementFromUploader()" 
+                          class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-1 rounded-r text-xs border border-l-0" title="Manage Subjects">
+                    <i class="fas fa-cog"></i>
+                  </button>
+                </div>
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Default Level</label>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Level</label>
                 <select id="uploadLevel" class="w-full p-1 text-sm border rounded">
                   <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
                   <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
@@ -307,12 +358,15 @@
           
           <div class="mb-3">
             <div class="grid grid-cols-2 gap-2 mb-2">
-              <select id="manualSubject" class="w-full p-1 text-sm border rounded">
-                  <option value="Math">Math</option>
-                  <option value="Reading">Reading</option>
-                  <option value="Science">Science</option>
-                  <option value="Computer Science">Computer Science</option>
-              </select>
+              <div class="flex">
+                <select id="manualSubject" class="flex-grow p-1 text-sm border rounded-l">
+                  <!-- Subjects will be populated dynamically -->
+                </select>
+                <button type="button" onclick="openSubjectManagementFromManual()" 
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-1 rounded-r text-xs border border-l-0" title="Manage Subjects">
+                  <i class="fas fa-cog"></i>
+                </button>
+              </div>
               <select id="manualLevel" class="w-full p-1 text-sm border rounded">
                   <option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option>
                   <option value="6">Level 6</option><option value="7">Level 7</option><option value="8">Level 8</option><option value="9">Level 9</option><option value="10">Level 10</option>
@@ -340,12 +394,15 @@
           
           <div class="mb-3">
             <div class="grid grid-cols-2 gap-2 mb-3">
-              <select id="resourceSubject" class="w-full p-1 text-sm border rounded">
-                  <option value="Math">Math</option>
-                  <option value="Reading">Reading</option>
-                  <option value="Science">Science</option>
-                  <option value="Computer Science">Computer Science</option>
-              </select>
+              <div class="flex">
+                <select id="resourceSubject" class="flex-grow p-1 text-sm border rounded-l">
+                  <!-- Subjects will be populated dynamically -->
+                </select>
+                <button type="button" onclick="openSubjectManagementFromResource()" 
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-1 rounded-r text-xs border border-l-0" title="Manage Subjects">
+                  <i class="fas fa-cog"></i>
+                </button>
+              </div>
               <select id="resourceLevel" class="w-full p-1 text-sm border rounded">
                   <option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option>
                   <option value="6">Level 6</option><option value="7">Level 7</option><option value="8">Level 8</option><option value="9">Level 9</option><option value="10">Level 10</option>
@@ -437,7 +494,8 @@
     const STORAGE_KEY = 'sofanit_users';
     const SETTINGS_KEY = 'sofanit_settings';
     const QUIZ_DATA_KEY = 'sofanit_quiz_data';
-    const RESOURCES_KEY = 'sofanit_resources_v2'; 
+    const RESOURCES_KEY = 'sofanit_resources_v2';
+    const SUBJECTS_KEY = 'sofanit_subjects'; // New key for custom subjects
     
     // Quiz state
     let currentSubject = '';
@@ -449,20 +507,18 @@
     let selectedOptions = []; 
     let quizSettings = {
         timerEnabled: true,
-        minutesPerQuestion: 1 // Default to exactly 1 minute per question
+        minutesPerQuestion: 1
     };
     
-    // Quiz data structure
-    let quizData = {
-        "Math": {},
-        "Reading": {},
-        "Science": {},
-        "Computer Science": {}
-    };
-    
-    let resources = {}; 
+    // Quiz data structure - now dynamically loaded
+    let quizData = {};
+    let resources = {};
     let manualQuestions = [];
-    const subjects = Object.keys(quizData);
+    let subjects = []; // Will be loaded from storage or defaults
+    let pendingSubjectChanges = []; // Track subject renames
+
+    // Default subjects for new installations
+    const DEFAULT_SUBJECTS = ["Math", "Reading", "Science", "Computer Science"];
 
     // Helper: Normalize text for strict comparison
     function normalizeText(text) {
@@ -472,7 +528,7 @@
             .trim()
             .replace(/\s+/g, ' ')
             .replace(/[^\w\s]/g, '')
-            .replace(/\s+/g, '');
+            .replace(/\s+/g, ' ');
     }
 
     // ==== INITIALIZATION ====
@@ -483,6 +539,7 @@
         
         loadUsers();
         loadSettings();
+        loadSubjects(); // Load custom subjects first
         loadQuizData();
         loadResources();
         
@@ -567,6 +624,349 @@
         renderAuthScreen();
     });
 
+    // ==== SUBJECT MANAGEMENT FUNCTIONS ====
+    function loadSubjects() {
+        const savedSubjects = localStorage.getItem(SUBJECTS_KEY);
+        if (savedSubjects) {
+            subjects = JSON.parse(savedSubjects);
+        } else {
+            // First time: use default subjects
+            subjects = [...DEFAULT_SUBJECTS];
+            saveSubjects();
+        }
+    }
+    
+    function saveSubjects() {
+        localStorage.setItem(SUBJECTS_KEY, JSON.stringify(subjects));
+    }
+    
+    function updateSubjectSelects() {
+        // Update all subject dropdowns in the app
+        const subjectSelects = [
+            'uploadSubject',
+            'manualSubject',
+            'resourceSubject'
+        ];
+        
+        subjectSelects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                select.innerHTML = subjects.map(subject => 
+                    `<option value="${subject}">${subject}</option>`
+                ).join('');
+            }
+        });
+    }
+    
+    function addNewSubject() {
+        const newSubjectInput = document.getElementById('newSubjectName');
+        const subjectName = newSubjectInput.value.trim();
+        
+        if (!subjectName) {
+            alertMessage("Please enter a subject name", "bg-red-500");
+            return;
+        }
+        
+        if (subjects.includes(subjectName)) {
+            alertMessage(`Subject "${subjectName}" already exists`, "bg-red-500");
+            return;
+        }
+        
+        if (subjectName.length > 50) {
+            alertMessage("Subject name too long (max 50 characters)", "bg-red-500");
+            return;
+        }
+        
+        // Add to subjects array
+        subjects.push(subjectName);
+        saveSubjects();
+        
+        // Initialize empty data structures for new subject
+        if (!quizData[subjectName]) {
+            quizData[subjectName] = {};
+        }
+        if (!resources[subjectName]) {
+            resources[subjectName] = {};
+        }
+        
+        saveQuizData();
+        saveResourcesMeta();
+        
+        // Update UI
+        renderSubjectManagementList();
+        updateSubjectSelects();
+        
+        // Clear input
+        newSubjectInput.value = '';
+        
+        alertMessage(`Subject "${subjectName}" added successfully`, "bg-green-500");
+    }
+    
+    function renameSubject(oldName, newName) {
+        if (oldName === newName) return;
+        
+        if (!subjects.includes(oldName)) {
+            alertMessage("Subject not found", "bg-red-500");
+            return;
+        }
+        
+        if (subjects.includes(newName)) {
+            alertMessage(`Subject "${newName}" already exists`, "bg-red-500");
+            return;
+        }
+        
+        // Track the rename for later processing
+        pendingSubjectChanges.push({
+            type: 'rename',
+            oldName: oldName,
+            newName: newName
+        });
+        
+        // Update subjects array immediately for UI
+        const index = subjects.indexOf(oldName);
+        subjects[index] = newName;
+        renderSubjectManagementList();
+        updateSubjectSelects();
+        
+        alertMessage(`Subject will be renamed from "${oldName}" to "${newName}"`, "bg-blue-500");
+    }
+    
+    function deleteSubject(subjectName) {
+        if (!subjects.includes(subjectName)) {
+            alertMessage("Subject not found", "bg-red-500");
+            return;
+        }
+        
+        // Check if subject has content
+        let hasContent = false;
+        let contentDetails = [];
+        
+        // Check quiz data
+        if (quizData[subjectName]) {
+            const questionCount = Object.values(quizData[subjectName]).reduce((sum, level) => sum + (level.length || 0), 0);
+            if (questionCount > 0) {
+                hasContent = true;
+                contentDetails.push(`${questionCount} questions`);
+            }
+        }
+        
+        // Check resources
+        if (resources[subjectName]) {
+            let resourceCount = 0;
+            Object.values(resources[subjectName]).forEach(level => {
+                if (level.pdfs) resourceCount += level.pdfs.length;
+                if (level.videos) resourceCount += level.videos.length;
+            });
+            if (resourceCount > 0) {
+                hasContent = true;
+                contentDetails.push(`${resourceCount} resources`);
+            }
+        }
+        
+        // Check user progress
+        let userProgressCount = 0;
+        mockUsers.forEach(user => {
+            if (user.levelProgress && user.levelProgress[subjectName]) {
+                userProgressCount += Object.keys(user.levelProgress[subjectName]).length;
+            }
+        });
+        if (userProgressCount > 0) {
+            hasContent = true;
+            contentDetails.push(`${userProgressCount} user progress records`);
+        }
+        
+        if (hasContent) {
+            alertMessage(
+                `Cannot delete "${subjectName}" because it contains: ${contentDetails.join(', ')}. ` +
+                `Please remove all content first.`,
+                "bg-red-500"
+            );
+            return;
+        }
+        
+        if (!confirm(`Are you sure you want to delete subject "${subjectName}"?`)) {
+            return;
+        }
+        
+        // Track for deletion
+        pendingSubjectChanges.push({
+            type: 'delete',
+            subjectName: subjectName
+        });
+        
+        // Remove from subjects array for UI
+        subjects = subjects.filter(s => s !== subjectName);
+        renderSubjectManagementList();
+        updateSubjectSelects();
+        
+        alertMessage(`Subject "${subjectName}" will be deleted`, "bg-blue-500");
+    }
+    
+    function saveSubjectChanges() {
+        // Process pending changes
+        pendingSubjectChanges.forEach(change => {
+            if (change.type === 'rename') {
+                // Rename in quiz data
+                if (quizData[change.oldName]) {
+                    quizData[change.newName] = quizData[change.oldName];
+                    delete quizData[change.oldName];
+                }
+                
+                // Rename in resources
+                if (resources[change.oldName]) {
+                    resources[change.newName] = resources[change.oldName];
+                    delete resources[change.oldName];
+                }
+                
+                // Rename in user progress
+                mockUsers.forEach(user => {
+                    if (user.levelProgress && user.levelProgress[change.oldName]) {
+                        user.levelProgress[change.newName] = user.levelProgress[change.oldName];
+                        delete user.levelProgress[change.oldName];
+                    }
+                    
+                    // Update test history
+                    if (user.testHistory) {
+                        user.testHistory.forEach(test => {
+                            if (test.subject === change.oldName) {
+                                test.subject = change.newName;
+                            }
+                        });
+                    }
+                    
+                    // Update last attempt details
+                    if (user.lastAttemptDetails && user.lastAttemptDetails.subject === change.oldName) {
+                        user.lastAttemptDetails.subject = change.newName;
+                    }
+                });
+                
+            } else if (change.type === 'delete') {
+                // Delete from quiz data
+                delete quizData[change.subjectName];
+                
+                // Delete from resources
+                delete resources[change.subjectName];
+                
+                // Delete from user progress
+                mockUsers.forEach(user => {
+                    if (user.levelProgress) {
+                        delete user.levelProgress[change.subjectName];
+                    }
+                    
+                    // Remove tests from history for this subject
+                    if (user.testHistory) {
+                        user.testHistory = user.testHistory.filter(test => test.subject !== change.subjectName);
+                    }
+                    
+                    // Clear last attempt if it was for this subject
+                    if (user.lastAttemptDetails && user.lastAttemptDetails.subject === change.subjectName) {
+                        user.lastAttemptDetails = {};
+                    }
+                });
+            }
+        });
+        
+        // Clear pending changes
+        pendingSubjectChanges = [];
+        
+        // Save all data
+        saveSubjects();
+        saveQuizData();
+        saveResourcesMeta();
+        saveUsers();
+        
+        // Update current view if needed
+        if (currentSubject && !subjects.includes(currentSubject)) {
+            currentSubject = subjects[0] || '';
+            renderWelcomeScreen();
+        }
+        
+        closeSubjectManagement();
+        alertMessage("Subject changes saved successfully", "bg-green-500");
+    }
+    
+    function openSubjectManagement() {
+        document.getElementById('subjectManagementModal').style.display = 'flex';
+        renderSubjectManagementList();
+    }
+    
+    function closeSubjectManagement() {
+        document.getElementById('subjectManagementModal').style.display = 'none';
+        // Reset pending changes if canceled
+        pendingSubjectChanges = [];
+        loadSubjects(); // Reload original subjects
+        updateSubjectSelects();
+    }
+    
+    function renderSubjectManagementList() {
+        const container = document.getElementById('subjectListContainer');
+        if (!container) return;
+        
+        if (subjects.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-4 text-gray-500">
+                    <i class="fas fa-book text-2xl mb-2"></i>
+                    <p>No subjects yet. Add your first subject above!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = subjects.map((subject, index) => {
+            // Check if subject has content
+            let hasContent = false;
+            if (quizData[subject]) {
+                const questionCount = Object.values(quizData[subject]).reduce((sum, level) => sum + (level.length || 0), 0);
+                if (questionCount > 0) hasContent = true;
+            }
+            
+            return `
+                <div class="subject-management-item">
+                    <div class="flex-grow">
+                        <div class="font-bold text-gray-800">${subject}</div>
+                        <div class="text-xs text-gray-500">
+                            ${hasContent ? '<i class="fas fa-exclamation-circle text-yellow-500 mr-1"></i> Contains content' : '<i class="fas fa-check-circle text-green-500 mr-1"></i> Empty'}
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button type="button" onclick="editSubjectName('${subject}')" 
+                                class="text-blue-500 hover:text-blue-700 p-1" title="Rename">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" onclick="deleteSubject('${subject}')" 
+                                class="text-red-500 hover:text-red-700 p-1 ${hasContent ? 'opacity-50 cursor-not-allowed' : ''}" 
+                                title="${hasContent ? 'Cannot delete - contains content' : 'Delete'}" 
+                                ${hasContent ? 'disabled' : ''}>
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function editSubjectName(oldName) {
+        const newName = prompt(`Rename "${oldName}" to:`, oldName);
+        if (newName && newName.trim() && newName !== oldName) {
+            renameSubject(oldName, newName.trim());
+        }
+    }
+    
+    function openSubjectManagementFromUploader() {
+        closeBulkUploader();
+        setTimeout(() => openSubjectManagement(), 100);
+    }
+    
+    function openSubjectManagementFromManual() {
+        closeManualExamCreator();
+        setTimeout(() => openSubjectManagement(), 100);
+    }
+    
+    function openSubjectManagementFromResource() {
+        closeResourceUploader();
+        setTimeout(() => openSubjectManagement(), 100);
+    }
+
     // ==== DATA MANAGEMENT ====
     function loadUsers() {
         const users = localStorage.getItem(STORAGE_KEY);
@@ -594,12 +994,27 @@
         const data = localStorage.getItem(QUIZ_DATA_KEY);
         if (data) {
             const savedData = JSON.parse(data);
-            for (const subject in savedData) {
-                if (!quizData[subject]) quizData[subject] = {};
-                for (const level in savedData[subject]) {
-                    quizData[subject][level] = savedData[subject][level];
-                }
+            
+            // Migrate old data structure if needed
+            if (savedData.Math && savedData.Reading && savedData.Science && savedData["Computer Science"]) {
+                // Already in new format
+                quizData = savedData;
+            } else {
+                // Convert old format to new
+                quizData = savedData;
+                
+                // Ensure all current subjects exist in quizData
+                subjects.forEach(subject => {
+                    if (!quizData[subject]) {
+                        quizData[subject] = {};
+                    }
+                });
             }
+        } else {
+            // Initialize with current subjects
+            subjects.forEach(subject => {
+                quizData[subject] = {};
+            });
         }
     }
     
@@ -609,7 +1024,21 @@
     
     function loadResources() {
         const res = localStorage.getItem(RESOURCES_KEY);
-        if (res) resources = JSON.parse(res);
+        if (res) {
+            resources = JSON.parse(res);
+            
+            // Ensure all current subjects exist in resources
+            subjects.forEach(subject => {
+                if (!resources[subject]) {
+                    resources[subject] = {};
+                }
+            });
+        } else {
+            // Initialize with current subjects
+            subjects.forEach(subject => {
+                resources[subject] = {};
+            });
+        }
     }
     
     function saveResourcesMeta() {
@@ -825,10 +1254,11 @@
                     ${currentUser.role === 'admin' ? `
                     <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
                         <p class="text-xs text-gray-500 uppercase font-bold text-center mb-2">Admin Tools</p>
-                        <div class="grid grid-cols-3 gap-2">
+                        <div class="grid grid-cols-4 gap-2">
                             <button onclick="openBulkUploader()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded text-xs flex flex-col items-center"><i class="fas fa-file-upload mb-1"></i> Bulk</button>
                             <button onclick="openManualExamCreator()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded text-xs flex flex-col items-center"><i class="fas fa-edit mb-1"></i> Manual</button>
                             <button onclick="openResourceUploader()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 rounded text-xs flex flex-col items-center"><i class="fas fa-folder-open mb-1"></i> Res.</button>
+                            <button onclick="openSubjectManagement()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 rounded text-xs flex flex-col items-center"><i class="fas fa-book mb-1"></i> Subjects</button>
                         </div>
                     </div>
                     ` : ''}
@@ -1301,6 +1731,9 @@
         const allUsers = mockUsers; 
         const qTotal = Object.values(quizData).reduce((acc, sub) => acc + Object.values(sub).reduce((a, l) => a + l.length, 0), 0);
         
+        // Update subject dropdowns
+        updateSubjectSelects();
+        
         quizApp.innerHTML = `
             <div class="flex flex-col h-full relative">
                 <button type="button" onclick="renderWelcomeScreen()" class="absolute top-0 left-0 bg-gray-200 px-3 py-1 rounded text-xs font-bold hover:bg-gray-300">← Back</button>
@@ -1318,9 +1751,9 @@
                         <div class="text-2xl font-bold text-purple-700">${mockUsers.filter(u=>u.role!=='admin').length}</div>
                         <div class="text-xs text-purple-500 uppercase font-bold">Students</div>
                     </div>
-                    <div onclick="renderWelcomeScreen()" class="dashboard-stat-card bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-center">
-                        <div class="text-2xl font-bold text-yellow-700">${subjects.length}</div>
-                        <div class="text-xs text-yellow-500 uppercase font-bold">Subjects</div>
+                    <div onclick="showSubjectSummary()" class="dashboard-stat-card bg-indigo-50 border border-indigo-200 p-3 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-indigo-700">${subjects.length}</div>
+                        <div class="text-xs text-indigo-500 uppercase font-bold">Subjects</div>
                     </div>
                 </div>
 
@@ -1328,6 +1761,7 @@
                     <button type="button" onclick="openBulkUploader()" class="flex-1 bg-blue-500 text-white font-bold py-2 rounded-lg text-xs hover:bg-blue-600"><i class="fas fa-file-csv mr-1"></i> Bulk</button>
                     <button type="button" onclick="openManualExamCreator()" class="flex-1 bg-green-500 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-600"><i class="fas fa-edit mr-1"></i> Manual</button>
                     <button type="button" onclick="openResourceUploader()" class="flex-1 bg-purple-500 text-white font-bold py-2 rounded-lg text-xs hover:bg-purple-600"><i class="fas fa-photo-video mr-1"></i> Res</button>
+                    <button type="button" onclick="openSubjectManagement()" class="flex-1 bg-indigo-500 text-white font-bold py-2 rounded-lg text-xs hover:bg-indigo-600"><i class="fas fa-book mr-1"></i> Subjects</button>
                 </div>
                 
                 <div class="bg-gray-50 border rounded-lg p-2 mb-4">
@@ -1376,6 +1810,47 @@
                     </div>
                 </div>
             </div>`;
+    }
+
+    function showSubjectSummary() {
+        let summaryHtml = '<div class="text-left space-y-2">';
+        subjects.forEach(subject => {
+            let questionCount = 0;
+            let resourceCount = 0;
+            
+            // Count questions
+            if (quizData[subject]) {
+                questionCount = Object.values(quizData[subject]).reduce((sum, level) => sum + (level.length || 0), 0);
+            }
+            
+            // Count resources
+            if (resources[subject]) {
+                Object.values(resources[subject]).forEach(level => {
+                    if (level.pdfs) resourceCount += level.pdfs.length;
+                    if (level.videos) resourceCount += level.videos.length;
+                });
+            }
+            
+            summaryHtml += `
+                <div class="flex justify-between border-b pb-1 text-sm">
+                    <span>${subject}</span>
+                    <div class="flex space-x-3">
+                        <span class="font-bold">${questionCount} Qs</span>
+                        <span class="text-gray-500">${resourceCount} Res</span>
+                    </div>
+                </div>`;
+        });
+        summaryHtml += '</div>';
+        
+        const modal = document.createElement('div');
+        modal.className = 'fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-[1100]';
+        modal.innerHTML = `
+            <div class="bg-white p-5 rounded-xl w-80 shadow-xl">
+                <h3 class="text-lg font-bold mb-4">Subject Summary</h3>
+                ${summaryHtml}
+                <button type="button" onclick="this.parentElement.parentElement.remove()" class="mt-4 w-full bg-blue-500 text-white py-2 rounded text-sm font-bold">Close</button>
+            </div>`;
+        document.body.appendChild(modal);
     }
 
     function openResetQuizModal() {
@@ -1429,11 +1904,13 @@
     
     function showQuestionSummary() {
         let summaryHtml = '<div class="text-left space-y-2">';
-        for(let s of subjects) {
+        subjects.forEach(s => {
             let count = 0;
-            for(let l in quizData[s]) count += quizData[s][l].length;
+            if (quizData[s]) {
+                for(let l in quizData[s]) count += quizData[s][l].length;
+            }
             summaryHtml += `<div class="flex justify-between border-b pb-1 text-sm"><span>${s}</span><span class="font-bold">${count}</span></div>`;
-        }
+        });
         summaryHtml += '</div>';
         
         const modal = document.createElement('div');
@@ -1621,6 +2098,7 @@
 
     // ==== REST OF UPLOADER LOGIC ====
     function closeManualExamCreator() { document.getElementById('manualExamModal').style.display = 'none'; }
+    function closeSubjectManagement() { document.getElementById('subjectManagementModal').style.display = 'none'; }
     function openManualExamCreatorForSubject(s) { document.getElementById('manualSubject').value = s; openManualExamCreator(); }
     
     function openResourceUploader() { document.getElementById('resourceUploaderModal').style.display = 'flex'; }
@@ -1919,6 +2397,14 @@
         alertMessage("Quiz data logged to console", "bg-blue-500");
     }
     
+    // Initialize subject dropdowns after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Small delay to ensure all elements are loaded
+        setTimeout(() => {
+            updateSubjectSelects();
+        }, 100);
+    });
+    
     // Exports - Explicitly attaching to window to prevent ReferenceErrors
     window.handleSignIn = handleSignIn;
     window.handleSignUp = handleSignUp;
@@ -1960,7 +2446,6 @@
     window.updateManualMultiAnswer = updateManualMultiAnswer;
     window.toggleMultiSelect = toggleMultiSelect;
     window.submitMultiAnswer = submitMultiAnswer;
-    window.toggleResourceMenu = toggleResourceMenu;
     window.renameResource = renameResource;
     window.deleteResource = deleteResource;
     window.openResourceWithTracking = openResourceWithTracking;
@@ -1970,6 +2455,17 @@
     window.closeResetModal = closeResetModal;
     window.confirmResetQuizProgress = confirmResetQuizProgress;
     window.openGlobalMenu = openGlobalMenu;
+    window.openSubjectManagement = openSubjectManagement;
+    window.closeSubjectManagement = closeSubjectManagement;
+    window.addNewSubject = addNewSubject;
+    window.renameSubject = renameSubject;
+    window.deleteSubject = deleteSubject;
+    window.editSubjectName = editSubjectName;
+    window.saveSubjectChanges = saveSubjectChanges;
+    window.openSubjectManagementFromUploader = openSubjectManagementFromUploader;
+    window.openSubjectManagementFromManual = openSubjectManagementFromManual;
+    window.openSubjectManagementFromResource = openSubjectManagementFromResource;
+    window.showSubjectSummary = showSubjectSummary;
   </script>
 </body>
 </html>
